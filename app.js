@@ -1,11 +1,13 @@
 require("dotenv").config();
 const express = require("express");
+const cors = require("cors");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const app = express();
 
+app.use(cors());
 // Config JSON response
 app.use(express.json());
 
@@ -52,10 +54,10 @@ function checkToken(req, res, next) {
 // Register User
 // async -> some things will depend of some response time
 app.post("/auth/register", async (req, res) => {
-  const { name, email, password } = req.body;
+  const { username, email, password } = req.body;
 
   // validations
-  if (!name) {
+  if (!username) {
     return res.status(422).json({ msg: "O nome é obrigatório" });
   }
   if (!email) {
@@ -76,7 +78,7 @@ app.post("/auth/register", async (req, res) => {
   const passwordHash = await bcrypt.hash(password, salt);
 
   // create user
-  const user = new User({ name, email, password: passwordHash });
+  const user = new User({ username, email, password: passwordHash });
 
   try {
     await user.save();
@@ -116,7 +118,10 @@ app.post("/auth/login", async (req, res) => {
 
   try {
     const secret = process.env.SECRET;
-    const token = jwt.sign({ id: user._id }, secret);
+    const token = jwt.sign(
+      { id: user._id, username: user.username, email: user.email },
+      secret
+    );
     res
       .status(200)
       .json({ msg: "Login realizado com sucesso", token, id: user._id });
