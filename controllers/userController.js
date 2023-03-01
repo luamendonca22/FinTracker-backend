@@ -91,3 +91,29 @@ exports.getUser = async (req, res) => {
   }
   return res.status(200).json({ user });
 };
+
+exports.updateDetails = async (req, res) => {
+  const id = req.params.id;
+  const details = req.body;
+
+  // check if user exists
+  const user = await User.findById(id, "-password");
+  if (!user) {
+    return res.status(404).json({ msg: "O utilizador não foi encontrado" });
+  }
+  user.details = details;
+  await user.save();
+  return res.status(200).json({ user });
+};
+
+exports.getDetails = async (req, res) => {
+  const id = req.params.id;
+
+  // check if user exists
+  const user = await User.findById(id, "-password");
+  if (!user) {
+    return res.status(404).json({ msg: "O utilizador não foi encontrado" });
+  }
+  const details = user.details;
+  return res.status(200).json({ details });
+};

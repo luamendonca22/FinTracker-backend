@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 module.exports = (req, res, next) => {
   // token
   const authHeader = req.headers["authorization"];
-
+  console.log(authHeader);
   // vem neste formato "Bearer safsajdhae", temos que fazer split
   const token = authHeader && authHeader.split(" ")[1];
 
