@@ -31,7 +31,7 @@ exports.register = async (req, res) => {
     const user = new User({ username, email, password: passwordHash });
 
     await user.save();
-    res.status(201).json({ msg: "Utilizador criado com sucesso!" });
+    res.status(201).json({ user, msg: "Utilizador criado com sucesso!" });
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -103,7 +103,9 @@ exports.updateDetails = async (req, res) => {
   }
   user.details = details;
   await user.save();
-  return res.status(200).json({ user });
+  return res
+    .status(200)
+    .json({ user, msg: "Detalhes atualizados com sucesso!" });
 };
 
 exports.getDetails = async (req, res) => {
@@ -112,8 +114,38 @@ exports.getDetails = async (req, res) => {
   // check if user exists
   const user = await User.findById(id, "-password");
   if (!user) {
-    return res.status(404).json({ msg: "O utilizador não foi encontrado" });
+    return res.status(404).json({ msg: "O utilizador não foi encontrado." });
   }
   const details = user.details;
   return res.status(200).json({ details });
+};
+
+exports.updatePassword = async (req, res) => {
+  const id = req.params.id;
+  const password = req.body.password;
+  if (!password) {
+    return res.status(422).json({ msg: "A palavra-passe é obrigatório." });
+  }
+  try {
+    // check if user exists
+    const user = await User.findById(id, "-password");
+    if (!user) {
+      return res.status(422).json({ msg: "O utilizador não foi encontrado." });
+    }
+
+    // create password
+    const salt = await bcrypt.genSalt(12);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    // create user
+    user.password = passwordHash;
+
+    await user.save();
+    res.status(201).json({ user, msg: "Palavra-passe alterada com sucesso!" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
+  }
 };
