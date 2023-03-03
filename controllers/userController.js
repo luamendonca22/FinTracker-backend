@@ -84,40 +84,57 @@ exports.login = async (req, res) => {
 exports.getUser = async (req, res) => {
   const id = req.params.id;
 
-  // check if user exists
-  const user = await User.findById(id, "-password");
-  if (!user) {
-    return res.status(404).json({ msg: "O utilizador não foi encontrado" });
+  try {
+    // check if user exists
+    const user = await User.findById(id, "-password");
+    if (!user) {
+      return res.status(404).json({ msg: "O utilizador não foi encontrado" });
+    }
+    return res.status(200).json({ user });
+  } catch (error) {
+    res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
   }
-  return res.status(200).json({ user });
 };
 
 exports.updateDetails = async (req, res) => {
   const id = req.params.id;
   const details = req.body;
 
-  // check if user exists
-  const user = await User.findById(id, "-password");
-  if (!user) {
-    return res.status(404).json({ msg: "O utilizador não foi encontrado" });
+  try {
+    // check if user exists
+    const user = await User.findById(id, "-password");
+    if (!user) {
+      return res.status(404).json({ msg: "O utilizador não foi encontrado" });
+    }
+    user.details = details;
+    await user.save();
+    return res
+      .status(201)
+      .json({ user, msg: "Detalhes atualizados com sucesso!" });
+  } catch (error) {
+    res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
   }
-  user.details = details;
-  await user.save();
-  return res
-    .status(201)
-    .json({ user, msg: "Detalhes atualizados com sucesso!" });
 };
 
 exports.getDetails = async (req, res) => {
   const id = req.params.id;
-
-  // check if user exists
-  const user = await User.findById(id, "-password");
-  if (!user) {
-    return res.status(404).json({ msg: "O utilizador não foi encontrado." });
+  try {
+    // check if user exists
+    const user = await User.findById(id, "-password");
+    if (!user) {
+      return res.status(404).json({ msg: "O utilizador não foi encontrado." });
+    }
+    const details = user.details;
+    return res.status(200).json({ details });
+  } catch (error) {
+    res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
   }
-  const details = user.details;
-  return res.status(200).json({ details });
 };
 
 exports.updatePassword = async (req, res) => {
@@ -171,12 +188,40 @@ exports.updatePoints = async (req, res) => {
   const id = req.params.id;
   const points = req.body.points;
 
-  // check if user exists
-  const user = await User.findById(id, "-password");
-  if (!user) {
-    return res.status(404).json({ msg: "O utilizador não foi encontrado" });
+  try {
+    // check if user exists
+    const user = await User.findById(id, "-password");
+    if (!user) {
+      return res.status(404).json({ msg: "O utilizador não foi encontrado" });
+    }
+    user.points = points;
+    await user.save();
+    return res
+      .status(201)
+      .json({ user, msg: "Pontos atualizados com sucesso!" });
+  } catch (error) {
+    res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
   }
-  user.points = points;
-  await user.save();
-  return res.status(201).json({ user, msg: "Pontos atualizados com sucesso!" });
+};
+exports.updateUsername = async (req, res) => {
+  const id = req.params.id;
+  const username = req.body.username;
+  try {
+    // check if user exists
+    const user = await User.findById(id, "-password");
+    if (!user) {
+      return res.status(404).json({ msg: "O utilizador não foi encontrado" });
+    }
+    user.username = username;
+    await user.save();
+    return res
+      .status(201)
+      .json({ user, msg: "Nome de utilizador atualizado com sucesso!" });
+  } catch (error) {
+    return res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
+  }
 };
