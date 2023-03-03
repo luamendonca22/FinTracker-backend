@@ -104,7 +104,7 @@ exports.updateDetails = async (req, res) => {
   user.details = details;
   await user.save();
   return res
-    .status(200)
+    .status(201)
     .json({ user, msg: "Detalhes atualizados com sucesso!" });
 };
 
@@ -130,7 +130,7 @@ exports.updatePassword = async (req, res) => {
     // check if user exists
     const user = await User.findById(id, "-password");
     if (!user) {
-      return res.status(422).json({ msg: "O utilizador não foi encontrado." });
+      return res.status(404).json({ msg: "O utilizador não foi encontrado." });
     }
 
     // create password
@@ -148,4 +148,35 @@ exports.updatePassword = async (req, res) => {
       msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
     });
   }
+};
+exports.deleteUser = async (req, res) => {
+  const id = req.params.id;
+  try {
+    // check if user exists
+    const user = await User.findById(id, "-password");
+    if (!user) {
+      return res.status(404).json({ msg: "O utilizador não foi encontrado." });
+    }
+    const deletedUser = await User.findByIdAndDelete(id);
+
+    res.status(200).json({ deletedUser, msg: "Conta eliminada com sucesso!" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
+  }
+};
+exports.updatePoints = async (req, res) => {
+  const id = req.params.id;
+  const points = req.body.points;
+
+  // check if user exists
+  const user = await User.findById(id, "-password");
+  if (!user) {
+    return res.status(404).json({ msg: "O utilizador não foi encontrado" });
+  }
+  user.points = points;
+  await user.save();
+  return res.status(201).json({ user, msg: "Pontos atualizados com sucesso!" });
 };
