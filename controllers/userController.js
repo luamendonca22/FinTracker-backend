@@ -139,20 +139,37 @@ exports.getDetails = async (req, res) => {
 
 exports.updatePassword = async (req, res) => {
   const id = req.params.id;
-  const password = req.body.password;
-  if (!password) {
-    return res.status(422).json({ msg: "A palavra-passe é obrigatório." });
+  const { currentPassword, newPassword, newPasswordConfirmation } = req.body;
+
+  if (!currentPassword) {
+    return res
+      .status(422)
+      .json({ msg: "Por favor, introduza a sua palavra-passe atual." });
+  }
+  if (!newPassword || !newPasswordConfirmation) {
+    return res
+      .status(422)
+      .json({ msg: "Por favor, introduza uma nova palavra-passe." });
+  }
+  if (newPassword != newPasswordConfirmation) {
+    return res.status(422).json({
+      msg: "A confirmação da palavra-passe tem de ser igual à nova palavra-passe.",
+    });
   }
   try {
     // check if user exists
-    const user = await User.findById(id, "-password");
+    const user = await User.findById(id);
     if (!user) {
       return res.status(404).json({ msg: "O utilizador não foi encontrado." });
+    }
+    const isMatch = await bcrypt.compareSync(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(422).json({ msg: "Palavra-passe atual inválida" });
     }
 
     // create password
     const salt = await bcrypt.genSalt(12);
-    const passwordHash = await bcrypt.hash(password, salt);
+    const passwordHash = await bcrypt.hash(newPassword, salt);
 
     // create user
     user.password = passwordHash;
@@ -219,6 +236,25 @@ exports.updateUsername = async (req, res) => {
     return res
       .status(201)
       .json({ user, msg: "Nome de utilizador atualizado com sucesso!" });
+  } catch (error) {
+    return res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
+  }
+};
+exports.deleteAccount = async (req, res) => {
+  const id = req.params.id;
+  try {
+    // check if user exists
+    const user = await User.findById(id, "-password");
+    if (!user) {
+      return res.status(404).json({ msg: "O utilizador não foi encontrado" });
+    }
+    const deletedUser = await User.findByIdAndDelete(id);
+
+    return res
+      .status(200)
+      .json({ deletedUser, msg: "Conta eliminada com sucesso!" });
   } catch (error) {
     return res.status(500).json({
       msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
