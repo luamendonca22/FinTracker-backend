@@ -4,10 +4,9 @@ const userController = require("../controllers/userController");
 const checkToken = require("../middleware/auth");
 
 router.get("/user/:id", checkToken, userController.getUser);
-router.put("/user/:id/details", userController.updateDetails);
-router.put("/user/:id/points", userController.updatePoints);
-router.put("/user/:id/password", userController.updatePassword);
-router.put("/user/:id/username", userController.updateUsername);
+router.put("/user/:id/details", checkToken, userController.updateDetails);
+router.put("/user/:id/points", checkToken, userController.updatePoints);
+router.put("/user/:id/password", checkToken, userController.updatePassword);
+router.put("/user/:id/username", checkToken, userController.updateUsername);
 router.get("/user/:id/details", userController.getDetails);
-router.delete("/user/:id/delete", userController.deleteUser);
 module.exports = router;

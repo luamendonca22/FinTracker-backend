@@ -235,13 +235,14 @@ exports.updateUsername = async (req, res) => {
     await user.save();
     return res
       .status(201)
-      .json({ user, msg: "Nome de utilizador atualizado com sucesso!" });
+      .json({ username, msg: "Nome de utilizador atualizado com sucesso!" });
   } catch (error) {
     return res.status(500).json({
       msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
     });
   }
 };
+
 exports.deleteAccount = async (req, res) => {
   const id = req.params.id;
   try {
