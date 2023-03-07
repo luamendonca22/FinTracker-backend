@@ -262,3 +262,13 @@ exports.deleteAccount = async (req, res) => {
     });
   }
 };
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find();
+    return res.json({ users });
+  } catch (error) {
+    return res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
+  }
+};

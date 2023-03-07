@@ -9,4 +9,5 @@ router.put("/user/:id/points", checkToken, userController.updatePoints);
 router.put("/user/:id/password", checkToken, userController.updatePassword);
 router.put("/user/:id/username", checkToken, userController.updateUsername);
 router.get("/user/:id/details", userController.getDetails);
+router.get("/users", checkToken, userController.getAllUsers);
 module.exports = router;
