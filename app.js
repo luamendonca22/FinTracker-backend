@@ -4,7 +4,8 @@ const app = express();
 
 const conn = require("./db/conn");
 const cors = require("cors");
-
+app.set("view engine", "ejs");
+app.use(express.urlencoded({ extended: false }));
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 

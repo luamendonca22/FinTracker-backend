@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt");
+const nodemailer = require("nodemailer");
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 
@@ -270,5 +271,97 @@ exports.getAllUsers = async (req, res) => {
     return res.status(500).json({
       msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
     });
+  }
+};
+exports.forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ msg: "O utilizador não foi encontrado" });
+    }
+
+    const secret = process.env.SECRET + user.password;
+    // Generate a unique token and store it in the user's document
+    const token = jwt.sign({ email: user.email, id: user._id }, secret, {
+      expiresIn: "5m",
+    });
+    const link = `http://localhost:3000/user/${user._id}/resetPassword/${token}`;
+
+    // Send an email to the user with a link to the password reset page
+    const transporter = nodemailer.createTransport({
+      service: "Hotmail",
+      auth: {
+        user: process.env.EMAIL_ADDRESS,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_ADDRESS,
+      to: email,
+      subject: "Alteração da palavra-passe.",
+      text: `Clique no link abaixo para alterar a sua palavra-passe:\n${link}`,
+    };
+
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log("Email enviado: " + info.response);
+      }
+    });
+
+    res.status(200).json({ msg: "Email enviado com sucesso!" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
+  }
+};
+
+exports.showResetPassword = async (req, res) => {
+  const { id, token } = req.params;
+
+  const user = await User.findById(id);
+  if (!user) {
+    return res.status(404).json({ msg: "O utilizador não foi encontrado" });
+  }
+  const secret = process.env.SECRET + user.password;
+  try {
+    const verify = jwt.verify(token, secret);
+    res.render("index", { email: verify.email, status: "Not Verified" });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ msg: "Not Verified" });
+  }
+};
+exports.resetPassword = async (req, res) => {
+  const { id, token } = req.params;
+  const { password } = req.body;
+  const user = await User.findById(id);
+  if (!user) {
+    return res.status(404).json({ msg: "O utilizador não foi encontrado" });
+  }
+  const secret = process.env.SECRET + user.password;
+  try {
+    const verify = jwt.verify(token, secret);
+    // create password
+    const salt = await bcrypt.genSalt(12);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    // create user
+    user.password = passwordHash;
+    await user.save();
+    res.render("index", {
+      email: verify.email,
+      status: "pala",
+    });
+    //res.render("index", { email: verify.email });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ msg: "Algo correu mal!" });
   }
 };
