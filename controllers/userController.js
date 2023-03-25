@@ -14,7 +14,7 @@ exports.register = async (req, res) => {
     return res.status(422).json({ msg: "O email é obrigatório." });
   }
   if (!password) {
-    return res.status(422).json({ msg: "A palavra-passe é obrigatório." });
+    return res.status(422).json({ msg: "A palavra-passe é obrigatória." });
   }
 
   try {
@@ -313,9 +313,9 @@ exports.forgotPassword = async (req, res) => {
       }
     });
 
-    res.status(200).json({ msg: "Email enviado com sucesso!" });
+    res.status(200).json({ msg: "Email enviado!" });
   } catch (error) {
-    console.error(error);
+    console.log(error);
     res.status(500).json({
       msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
     });
@@ -332,7 +332,7 @@ exports.showResetPassword = async (req, res) => {
   const secret = process.env.SECRET + user.password;
   try {
     const verify = jwt.verify(token, secret);
-    res.render("index", { email: verify.email, status: "Not Verified" });
+    res.render("index", { status: "Not Verified" });
   } catch (error) {
     console.log(error);
     res.status(400).json({ msg: "Not Verified" });
@@ -345,6 +345,11 @@ exports.resetPassword = async (req, res) => {
   if (!user) {
     return res.status(404).json({ msg: "O utilizador não foi encontrado" });
   }
+  if (!password) {
+    return res.redirect(
+      `http://localhost:3000/user/${user._id}/resetPassword/${token}`
+    );
+  }
   const secret = process.env.SECRET + user.password;
   try {
     const verify = jwt.verify(token, secret);
@@ -356,8 +361,7 @@ exports.resetPassword = async (req, res) => {
     user.password = passwordHash;
     await user.save();
     res.render("index", {
-      email: verify.email,
-      status: "pala",
+      status: "Verificado",
     });
     //res.render("index", { email: verify.email });
   } catch (error) {
