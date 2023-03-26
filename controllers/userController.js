@@ -332,7 +332,8 @@ exports.showResetPassword = async (req, res) => {
   const secret = process.env.SECRET + user.password;
   try {
     const verify = jwt.verify(token, secret);
-    res.render("index", { status: "Acesso negado" });
+
+    res.render("index");
   } catch (error) {
     console.log(error);
     res.render("non-authorized");
@@ -361,9 +362,7 @@ exports.resetPassword = async (req, res) => {
     user.password = passwordHash;
     await user.save();
     res.render("password-reseted");
-    //res.render("index", { email: verify.email });
   } catch (error) {
-    console.log(error);
-    res.status(400).json({ msg: "Algo correu mal!" });
+    res.render("non-authorized");
   }
 };
