@@ -285,7 +285,7 @@ exports.forgotPassword = async (req, res) => {
     const secret = process.env.SECRET + user.password;
     // Generate a unique token and store it in the user's document
     const token = jwt.sign({ email: user.email, id: user._id }, secret, {
-      expiresIn: "5m",
+      expiresIn: "1m",
     });
     const link = `http://localhost:3000/user/${user._id}/resetPassword/${token}`;
 
@@ -332,10 +332,10 @@ exports.showResetPassword = async (req, res) => {
   const secret = process.env.SECRET + user.password;
   try {
     const verify = jwt.verify(token, secret);
-    res.render("index", { status: "Not Verified" });
+    res.render("index", { status: "Acesso negado" });
   } catch (error) {
     console.log(error);
-    res.status(400).json({ msg: "Not Verified" });
+    res.render("non-authorized");
   }
 };
 exports.resetPassword = async (req, res) => {
@@ -360,9 +360,7 @@ exports.resetPassword = async (req, res) => {
     // create user
     user.password = passwordHash;
     await user.save();
-    res.render("index", {
-      status: "Verificado",
-    });
+    res.render("password-reseted");
     //res.render("index", { email: verify.email });
   } catch (error) {
     console.log(error);

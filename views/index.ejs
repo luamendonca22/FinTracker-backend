@@ -6,23 +6,11 @@
     <meta name="viewport" content="width-device-width, initial-scale-1.0" />
     <title></title>
     <link rel="stylesheet" type="text/css" href="/css/style.css" />
-    <script>
-      var status = "<%-status%>";
-      if (status === "Verificado") {
-        document.addEventListener("DOMContentLoaded", function () {
-          var formContainer = document.querySelector(".form-box");
-          var successMessage = document.createElement("p");
-          successMessage.textContent = "Palavra-passe atualizada!";
-          successMessage.classList.add("success-message");
-          formContainer.parentNode.insertBefore(successMessage, formContainer);
-        });
-      }
-    </script>
   </head>
   <body>
     <div class="form-container">
       <form action="" method="post" class="form-wrap">
-        <h2>Recuperação de palavra-passe</h2>
+        <h1>Recuperação de palavra-passe</h1>
         <div class="form-box">
           <input
             type="password"
