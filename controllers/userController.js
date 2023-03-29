@@ -433,7 +433,9 @@ exports.getPicture = async (req, res) => {
     if (userPicture == null) {
       return res.status(404).json({ msg: "A imagem de perfil não existe." });
     }
-    res.sendfile(userPicture.src);
+    const src = userPicture.src;
+    console.log(src);
+    res.status(200).json({ src, msg: "Imagem atualizada com sucesso!" });
   } catch (error) {
     return res.status(500).json({
       msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",

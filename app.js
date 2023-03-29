@@ -2,10 +2,14 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 const path = require("path");
+const checkToken = require("./middleware/auth");
 
 const conn = require("./db/conn");
 const cors = require("cors");
+
 app.use(express.static(path.join(__dirname, "public")));
+app.use("/uploads", express.static("uploads"));
+//http:localhost//3000/uploads/1680098977109.jpg
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: false }));
