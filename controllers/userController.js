@@ -381,8 +381,8 @@ exports.addPicture = async (req, res) => {
     if (oldPicture) {
       if (fs.existsSync(oldPicture.src)) {
         fs.unlinkSync(oldPicture.src);
-        oldPicture.remove();
       }
+      oldPicture.remove();
     }
     const picture = new Picture({ name, src: file.path });
     await picture.save();
