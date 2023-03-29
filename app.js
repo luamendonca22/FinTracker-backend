@@ -11,6 +11,7 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: false }));
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
+const pictureRoutes = require("./routes/pictureRoutes");
 
 // allow requests
 app.use(cors());
@@ -22,6 +23,7 @@ conn();
 
 app.use("/", authRoutes);
 app.use("/", userRoutes);
+app.use("/", pictureRoutes);
 
 const port = process.env.PORT || 3000;
 app.listen(port, function () {

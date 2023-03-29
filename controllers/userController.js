@@ -2,6 +2,8 @@ const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
+const { Picture } = require("../models/Picture");
+const fs = require("fs");
 
 exports.register = async (req, res) => {
   const { username, email, password } = req.body;
@@ -364,5 +366,77 @@ exports.resetPassword = async (req, res) => {
     res.render("password-reseted");
   } catch (error) {
     res.render("non-authorized");
+  }
+};
+exports.addPicture = async (req, res) => {
+  const id = req.params.id;
+  const { name } = req.body;
+  const file = req.file;
+  try {
+    const user = await User.findById(id, "-password");
+    if (!user) {
+      return res.status(404).json({ msg: "O utilizador não foi encontrado" });
+    }
+    const oldPicture = await Picture.findOne({ name: "perfil" });
+    if (oldPicture) {
+      if (fs.existsSync(oldPicture.src)) {
+        fs.unlinkSync(oldPicture.src);
+        oldPicture.remove();
+      }
+    }
+    const picture = new Picture({ name, src: file.path });
+    await picture.save();
+    user.picture = picture;
+    await user.save();
+    res
+      .status(200)
+      .json({ picture, msg: "Imagem de perfil atualizada com sucesso!" });
+  } catch (error) {
+    return res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
+  }
+};
+exports.deletePicture = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const user = await User.findById(id, "-password");
+    if (!user) {
+      return res.status(404).json({ msg: "O utilizador não foi encontrado" });
+    }
+    const userPicture = user.picture;
+    if (userPicture == null) {
+      return res.status(404).json({ msg: "A imagem de perfil não existe." });
+    }
+    fs.unlinkSync(user.picture.src);
+
+    await userPicture.remove();
+    await user.save();
+    const pictureId = userPicture._id;
+    await Picture.findByIdAndRemove(pictureId);
+
+    res.status(200).json({ msg: "Imagem de perfil removida com sucesso!" });
+  } catch (error) {
+    return res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
+  }
+};
+exports.getPicture = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const user = await User.findById(id, "-password");
+    if (!user) {
+      return res.status(404).json({ msg: "O utilizador não foi encontrado" });
+    }
+    const userPicture = user.picture;
+    if (userPicture == null) {
+      return res.status(404).json({ msg: "A imagem de perfil não existe." });
+    }
+    res.sendfile(userPicture.src);
+  } catch (error) {
+    return res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
   }
 };

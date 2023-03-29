@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/userController");
 const checkToken = require("../middleware/auth");
+const upload = require("../config/multer");
 
 router.get("/user/:id", checkToken, userController.getUser);
 router.put("/user/:id/details", checkToken, userController.updateDetails);
@@ -13,4 +14,7 @@ router.post("/user/:id/resetPassword/:token", userController.resetPassword);
 router.put("/user/:id/username", checkToken, userController.updateUsername);
 router.get("/user/:id/details", checkToken, userController.getDetails);
 router.get("/users", checkToken, userController.getAllUsers);
+router.put("/user/:id/picture", checkToken, upload, userController.addPicture);
+router.get("/user/:id/picture", checkToken, userController.getPicture);
+router.delete("/user/:id/picture", checkToken, userController.deletePicture);
 module.exports = router;
