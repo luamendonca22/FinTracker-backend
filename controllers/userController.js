@@ -377,14 +377,14 @@ exports.addPicture = async (req, res) => {
     if (!user) {
       return res.status(404).json({ msg: "O utilizador não foi encontrado" });
     }
-    const oldPicture = await Picture.findOne({ name: "perfil" });
+    const oldPicture = await Picture.findOne({ name: "perfil", userId: id });
     if (oldPicture) {
       if (fs.existsSync(oldPicture.src)) {
         fs.unlinkSync(oldPicture.src);
       }
       oldPicture.remove();
     }
-    const picture = new Picture({ name, src: file.path });
+    const picture = new Picture({ name, src: file.path, userId: id });
     await picture.save();
     user.picture = picture;
     await user.save();
