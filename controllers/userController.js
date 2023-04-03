@@ -356,6 +356,7 @@ exports.resetPassword = async (req, res) => {
   const secret = process.env.SECRET + user.password;
   try {
     const verify = jwt.verify(token, secret);
+
     // create password
     const salt = await bcrypt.genSalt(12);
     const passwordHash = await bcrypt.hash(password, salt);
@@ -377,6 +378,8 @@ exports.addPicture = async (req, res) => {
     if (!user) {
       return res.status(404).json({ msg: "O utilizador não foi encontrado" });
     }
+
+    // delete the previous file from multer and pictures collections
     const oldPicture = await Picture.findOne({ name: "perfil", userId: id });
     if (oldPicture) {
       if (fs.existsSync(oldPicture.src)) {
@@ -384,13 +387,18 @@ exports.addPicture = async (req, res) => {
       }
       oldPicture.remove();
     }
+
+    // create a new picture object
     const picture = new Picture({ name, src: file.path, userId: id });
     await picture.save();
+
+    // update the picture property of user with the new picture object
     user.picture = picture;
     await user.save();
+
     res
       .status(200)
-      .json({ picture, msg: "Imagem de perfil atualizada com sucesso!" });
+      .json({ picture, msg: "Imagem de perfil adicionada com sucesso!" });
   } catch (error) {
     return res.status(500).json({
       msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
@@ -404,15 +412,21 @@ exports.deletePicture = async (req, res) => {
     if (!user) {
       return res.status(404).json({ msg: "O utilizador não foi encontrado" });
     }
+
+    // retrieve the picture property of user
     const userPicture = user.picture;
     if (userPicture == null) {
       return res.status(404).json({ msg: "A imagem de perfil não existe." });
     }
+    // if the property exists, delete the file from multer
     fs.unlinkSync(user.picture.src);
 
+    // delete the picture property of user
     await userPicture.remove();
     await user.save();
+
     const pictureId = userPicture._id;
+    // delete the picture object from pictures collection
     await Picture.findByIdAndRemove(pictureId);
 
     res.status(200).json({ msg: "Imagem de perfil removida com sucesso!" });
@@ -429,13 +443,19 @@ exports.getPicture = async (req, res) => {
     if (!user) {
       return res.status(404).json({ msg: "O utilizador não foi encontrado" });
     }
+    // retrieve the picture property of user
     const userPicture = user.picture;
     if (userPicture == null) {
       return res.status(404).json({ msg: "A imagem de perfil não existe." });
     }
+    // pick the file source
     const src = userPicture.src;
     console.log(src);
-    res.status(200).json({ src, msg: "Imagem atualizada com sucesso!" });
+
+    // send the source
+    res
+      .status(200)
+      .json({ src, msg: "Imagem de perfil atualizada com sucesso!" });
   } catch (error) {
     return res.status(500).json({
       msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
