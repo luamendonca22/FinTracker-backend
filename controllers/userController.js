@@ -5,6 +5,8 @@ const jwt = require("jsonwebtoken");
 const { Picture } = require("../models/Picture");
 const fs = require("fs");
 
+// -------- POST ---------
+
 exports.register = async (req, res) => {
   const { username, email, password } = req.body;
 
@@ -84,6 +86,85 @@ exports.login = async (req, res) => {
   }
 };
 
+exports.forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ msg: "O utilizador não foi encontrado." });
+    }
+
+    const secret = process.env.SECRET + user.password;
+
+    // Generate a unique token and store it in the user's document
+    const token = jwt.sign({ email: user.email, id: user._id }, secret, {
+      expiresIn: "1m",
+    });
+    const link = `http://localhost:3000/user/${user._id}/resetPassword/${token}`;
+
+    // Send an email to the user with a link to the password reset page
+    const transporter = nodemailer.createTransport({
+      service: "Hotmail",
+      auth: {
+        user: process.env.EMAIL_ADDRESS,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_ADDRESS,
+      to: email,
+      subject: "Alteração da palavra-passe.",
+      text: `Clique no link abaixo para alterar a sua palavra-passe:\n${link}`,
+    };
+
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log("Email enviado: " + info.response);
+      }
+    });
+
+    res.status(200).json({ msg: "Email enviado!" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
+  }
+};
+exports.resetPassword = async (req, res) => {
+  const { id, token } = req.params;
+  const { password } = req.body;
+  const user = await User.findById(id);
+  if (!user) {
+    return res.status(404).json({ msg: "O utilizador não foi encontrado." });
+  }
+  if (!password) {
+    return res.redirect(
+      `http://localhost:3000/user/${user._id}/resetPassword/${token}`
+    );
+  }
+  const secret = process.env.SECRET + user.password;
+  try {
+    const verify = jwt.verify(token, secret);
+
+    // create password
+    const salt = await bcrypt.genSalt(12);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    // create user
+    user.password = passwordHash;
+    await user.save();
+    res.render("password-reseted");
+  } catch (error) {
+    res.render("non-authorized");
+  }
+};
+// --------- GET ---------
+
 exports.getUser = async (req, res) => {
   const id = req.params.id;
 
@@ -101,6 +182,78 @@ exports.getUser = async (req, res) => {
   }
 };
 
+exports.getDetails = async (req, res) => {
+  const id = req.params.id;
+  try {
+    // check if user exists
+    const user = await User.findById(id, "-password");
+    if (!user) {
+      return res.status(404).json({ msg: "O utilizador não foi encontrado." });
+    }
+    const details = user.details;
+    return res.status(200).json({ details });
+  } catch (error) {
+    res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
+  }
+};
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find();
+    return res.json({ users });
+  } catch (error) {
+    return res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
+  }
+};
+exports.getPicture = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const user = await User.findById(id, "-password");
+    if (!user) {
+      return res.status(404).json({ msg: "O utilizador não foi encontrado" });
+    }
+    // retrieve the picture property of user
+    const userPicture = user.picture;
+    if (userPicture == null) {
+      return res.status(404).json({ msg: "A imagem de perfil não existe." });
+    }
+    // pick the file source
+    const src = userPicture.src;
+    console.log(src);
+
+    // send the source
+    res
+      .status(200)
+      .json({ src, msg: "Imagem de perfil atualizada com sucesso!" });
+  } catch (error) {
+    return res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
+  }
+};
+exports.showResetPassword = async (req, res) => {
+  const { id, token } = req.params;
+
+  const user = await User.findById(id);
+  if (!user) {
+    return res.status(404).json({ msg: "O utilizador não foi encontrado" });
+  }
+  const secret = process.env.SECRET + user.password;
+  try {
+    const verify = jwt.verify(token, secret);
+
+    res.render("index");
+  } catch (error) {
+    console.log(error);
+    res.render("non-authorized");
+  }
+};
+
+// -------- UPDATE ---------
+
 exports.updateDetails = async (req, res) => {
   const id = req.params.id;
   const details = req.body;
@@ -116,23 +269,6 @@ exports.updateDetails = async (req, res) => {
     return res
       .status(201)
       .json({ user, msg: "Detalhes atualizados com sucesso!" });
-  } catch (error) {
-    res.status(500).json({
-      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
-    });
-  }
-};
-
-exports.getDetails = async (req, res) => {
-  const id = req.params.id;
-  try {
-    // check if user exists
-    const user = await User.findById(id, "-password");
-    if (!user) {
-      return res.status(404).json({ msg: "O utilizador não foi encontrado." });
-    }
-    const details = user.details;
-    return res.status(200).json({ details });
   } catch (error) {
     res.status(500).json({
       msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
@@ -186,24 +322,7 @@ exports.updatePassword = async (req, res) => {
     });
   }
 };
-exports.deleteUser = async (req, res) => {
-  const id = req.params.id;
-  try {
-    // check if user exists
-    const user = await User.findById(id, "-password");
-    if (!user) {
-      return res.status(404).json({ msg: "O utilizador não foi encontrado." });
-    }
-    const deletedUser = await User.findByIdAndDelete(id);
 
-    res.status(200).json({ deletedUser, msg: "Conta eliminada com sucesso!" });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
-    });
-  }
-};
 exports.updatePoints = async (req, res) => {
   const id = req.params.id;
   const points = req.body.points;
@@ -245,131 +364,7 @@ exports.updateUsername = async (req, res) => {
     });
   }
 };
-
-exports.deleteAccount = async (req, res) => {
-  const id = req.params.id;
-  try {
-    // check if user exists
-    const user = await User.findById(id, "-password");
-    if (!user) {
-      return res.status(404).json({ msg: "O utilizador não foi encontrado" });
-    }
-    const deletedUser = await User.findByIdAndDelete(id);
-
-    return res
-      .status(200)
-      .json({ deletedUser, msg: "Conta eliminada com sucesso!" });
-  } catch (error) {
-    return res.status(500).json({
-      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
-    });
-  }
-};
-exports.getAllUsers = async (req, res) => {
-  try {
-    const users = await User.find();
-    return res.json({ users });
-  } catch (error) {
-    return res.status(500).json({
-      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
-    });
-  }
-};
-exports.forgotPassword = async (req, res) => {
-  const { email } = req.body;
-
-  try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ msg: "O utilizador não foi encontrado" });
-    }
-
-    const secret = process.env.SECRET + user.password;
-    // Generate a unique token and store it in the user's document
-    const token = jwt.sign({ email: user.email, id: user._id }, secret, {
-      expiresIn: "1m",
-    });
-    const link = `http://localhost:3000/user/${user._id}/resetPassword/${token}`;
-
-    // Send an email to the user with a link to the password reset page
-    const transporter = nodemailer.createTransport({
-      service: "Hotmail",
-      auth: {
-        user: process.env.EMAIL_ADDRESS,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-    });
-
-    const mailOptions = {
-      from: process.env.EMAIL_ADDRESS,
-      to: email,
-      subject: "Alteração da palavra-passe.",
-      text: `Clique no link abaixo para alterar a sua palavra-passe:\n${link}`,
-    };
-
-    transporter.sendMail(mailOptions, function (error, info) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log("Email enviado: " + info.response);
-      }
-    });
-
-    res.status(200).json({ msg: "Email enviado!" });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
-    });
-  }
-};
-
-exports.showResetPassword = async (req, res) => {
-  const { id, token } = req.params;
-
-  const user = await User.findById(id);
-  if (!user) {
-    return res.status(404).json({ msg: "O utilizador não foi encontrado" });
-  }
-  const secret = process.env.SECRET + user.password;
-  try {
-    const verify = jwt.verify(token, secret);
-
-    res.render("index");
-  } catch (error) {
-    console.log(error);
-    res.render("non-authorized");
-  }
-};
-exports.resetPassword = async (req, res) => {
-  const { id, token } = req.params;
-  const { password } = req.body;
-  const user = await User.findById(id);
-  if (!user) {
-    return res.status(404).json({ msg: "O utilizador não foi encontrado" });
-  }
-  if (!password) {
-    return res.redirect(
-      `http://localhost:3000/user/${user._id}/resetPassword/${token}`
-    );
-  }
-  const secret = process.env.SECRET + user.password;
-  try {
-    const verify = jwt.verify(token, secret);
-
-    // create password
-    const salt = await bcrypt.genSalt(12);
-    const passwordHash = await bcrypt.hash(password, salt);
-
-    // create user
-    user.password = passwordHash;
-    await user.save();
-    res.render("password-reseted");
-  } catch (error) {
-    res.render("non-authorized");
-  }
-};
-exports.addPicture = async (req, res) => {
+exports.updatePicture = async (req, res) => {
   const id = req.params.id;
   const { name } = req.body;
   const file = req.file;
@@ -405,6 +400,47 @@ exports.addPicture = async (req, res) => {
     });
   }
 };
+// -------- DELETE ---------
+
+exports.deleteUser = async (req, res) => {
+  const id = req.params.id;
+  try {
+    // check if user exists
+    const user = await User.findById(id, "-password");
+    if (!user) {
+      return res.status(404).json({ msg: "O utilizador não foi encontrado." });
+    }
+    const deletedUser = await User.findByIdAndDelete(id);
+
+    res.status(200).json({ deletedUser, msg: "Conta eliminada com sucesso!" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
+  }
+};
+
+exports.deleteAccount = async (req, res) => {
+  const id = req.params.id;
+  try {
+    // check if user exists
+    const user = await User.findById(id, "-password");
+    if (!user) {
+      return res.status(404).json({ msg: "O utilizador não foi encontrado" });
+    }
+    const deletedUser = await User.findByIdAndDelete(id);
+
+    return res
+      .status(200)
+      .json({ deletedUser, msg: "Conta eliminada com sucesso!" });
+  } catch (error) {
+    return res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
+  }
+};
+
 exports.deletePicture = async (req, res) => {
   const id = req.params.id;
   try {
@@ -430,32 +466,6 @@ exports.deletePicture = async (req, res) => {
     await Picture.findByIdAndRemove(pictureId);
 
     res.status(200).json({ msg: "Imagem de perfil removida com sucesso!" });
-  } catch (error) {
-    return res.status(500).json({
-      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
-    });
-  }
-};
-exports.getPicture = async (req, res) => {
-  const id = req.params.id;
-  try {
-    const user = await User.findById(id, "-password");
-    if (!user) {
-      return res.status(404).json({ msg: "O utilizador não foi encontrado" });
-    }
-    // retrieve the picture property of user
-    const userPicture = user.picture;
-    if (userPicture == null) {
-      return res.status(404).json({ msg: "A imagem de perfil não existe." });
-    }
-    // pick the file source
-    const src = userPicture.src;
-    console.log(src);
-
-    // send the source
-    res
-      .status(200)
-      .json({ src, msg: "Imagem de perfil atualizada com sucesso!" });
   } catch (error) {
     return res.status(500).json({
       msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",

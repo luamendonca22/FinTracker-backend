@@ -16,6 +16,7 @@ app.use(express.urlencoded({ extended: false }));
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const pictureRoutes = require("./routes/pictureRoutes");
+const cetaceansRoutes = require("./routes/cetaceansRoutes");
 
 // allow requests
 app.use(cors());
@@ -28,6 +29,7 @@ conn();
 app.use("/", authRoutes);
 app.use("/", userRoutes);
 app.use("/", pictureRoutes);
+app.use("/", cetaceansRoutes);
 
 const port = process.env.PORT || 3000;
 app.listen(port, function () {
