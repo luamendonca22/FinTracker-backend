@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { PictureSchema } = require("./Picture");
 const Cetacean = mongoose.model("Cetacean", {
   /*  taxon_canonical_name: { type: String, required: true },
    details: { type: [Object], required: true },*/
@@ -14,6 +15,7 @@ const Cetacean = mongoose.model("Cetacean", {
   individualId: { type: String, required: true },
   local_identifier: { type: String, required: true },
   details: { type: [Object], required: true },
+  picture: { type: PictureSchema },
 });
 
 module.exports = Cetacean;

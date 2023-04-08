@@ -1,4 +1,5 @@
 const Cetacean = require("../models/Cetacean");
+const { Picture } = require("../models/Picture");
 
 exports.create = async (req, res) => {
   const {
@@ -15,6 +16,10 @@ exports.create = async (req, res) => {
     introduction,
   } = req.body;
   try {
+    const picture = new Picture({
+      name: details[1].value,
+      src: `cetaceans/${details[1].value.trim()}.jpg`,
+    });
     const cetacean = new Cetacean({
       timestamp_start,
       timestamp_end,
@@ -24,6 +29,7 @@ exports.create = async (req, res) => {
       individualId,
       details,
       name,
+      picture,
       history,
       migration,
       introduction,

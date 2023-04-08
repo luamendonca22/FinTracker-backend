@@ -9,6 +9,7 @@ const cors = require("cors");
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/uploads", express.static("uploads"));
+app.use("/cetaceans", express.static("cetaceans"));
 //http:localhost//3000/uploads/1680098977109.jpg
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
