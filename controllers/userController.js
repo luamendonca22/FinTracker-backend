@@ -400,6 +400,37 @@ exports.updatePicture = async (req, res) => {
     });
   }
 };
+exports.updateFavorites = async (req, res) => {
+  const id = req.params.id;
+  const { cetaceanId } = req.body;
+  try {
+    const user = await User.findById(id, "-password");
+    if (!user) {
+      return res.status(404).json({ msg: "O utilizador não foi encontrado" });
+    }
+    const isFavorite = user.favorites.includes(cetaceanId);
+    if (isFavorite) {
+      return res
+        .status(400)
+        .json({ msg: "Este cetáceo já está nos favoritos!" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      { _id: id },
+      { $push: { favorites: cetaceanId } },
+      { new: true } // retorna o novo documento atualizado
+    );
+
+    res
+      .status(200)
+      .json({ updatedUser, msg: "Cetáceo adicionado aos favoritos!" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
+  }
+};
 // -------- DELETE ---------
 
 exports.deleteUser = async (req, res) => {
@@ -467,6 +498,36 @@ exports.deletePicture = async (req, res) => {
 
     res.status(200).json({ msg: "Imagem de perfil removida com sucesso!" });
   } catch (error) {
+    return res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
+  }
+};
+exports.deleteFavorite = async (req, res) => {
+  const id = req.params.id;
+  const { cetaceanToRemove } = req.body;
+  try {
+    const user = await User.findById(id, "-password");
+    if (!user) {
+      return res.status(404).json({ msg: "O utilizador não foi encontrado" });
+    }
+    const isFavorite = user.favorites.includes(cetaceanToRemove);
+    if (!isFavorite) {
+      return res
+        .status(400)
+        .json({ msg: "Este cetáceo não está nos favoritos!" });
+    }
+    const updatedUser = await User.findByIdAndUpdate(
+      { _id: id },
+      { $pull: { favorites: cetaceanToRemove } },
+      { new: true }
+    );
+
+    res
+      .status(200)
+      .json({ updatedUser, msg: "Cetáceo removido dos favoritos!" });
+  } catch (error) {
+    console.log(error);
     return res.status(500).json({
       msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
     });

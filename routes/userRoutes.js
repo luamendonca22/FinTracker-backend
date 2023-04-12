@@ -23,6 +23,12 @@ router.put(
   upload,
   userController.updatePicture
 );
+router.put("/user/:id/favorites", checkToken, userController.updateFavorites);
+router.put(
+  "/user/:id/favorites/remove",
+  checkToken,
+  userController.deleteFavorite
+);
 
 router.delete("/user/:id/picture", checkToken, userController.deletePicture);
 module.exports = router;

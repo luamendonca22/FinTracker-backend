@@ -53,6 +53,23 @@ exports.getAll = async (req, res) => {
     });
   }
 };
+exports.getByIndividualId = async (req, res) => {
+  console.log(req.params.id);
+  const id = req.params.id;
+  try {
+    const cetacean = await Cetacean.findOne({ individualId: id });
+    if (!cetacean) {
+      return res.status(404).json({ msg: "O cetáceo não foi encontrado!" });
+    }
+
+    return res.json({ cetacean, msg: "Cetáceos filtrados por id!" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
+  }
+};
 exports.deleteAll = async (req, res) => {
   try {
     await Cetacean.deleteMany({});
