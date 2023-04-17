@@ -1,9 +1,6 @@
 const mongoose = require("mongoose");
 const { PictureSchema } = require("./Picture");
 const Cetacean = mongoose.model("Cetacean", {
-  /*  taxon_canonical_name: { type: String, required: true },
-   details: { type: [Object], required: true },*/
-  /* sex: { type: String, required: true }, */
   introduction: { type: String, required: true },
   history: { type: String, required: true },
   migration: { type: String, required: true },

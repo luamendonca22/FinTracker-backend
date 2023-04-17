@@ -17,6 +17,7 @@ const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const pictureRoutes = require("./routes/pictureRoutes");
 const cetaceansRoutes = require("./routes/cetaceansRoutes");
+const eventsRoutes = require("./routes/eventsRoutes");
 
 // allow requests
 app.use(cors());
@@ -30,6 +31,7 @@ app.use("/", authRoutes);
 app.use("/", userRoutes);
 app.use("/", pictureRoutes);
 app.use("/", cetaceansRoutes);
+app.use("/", eventsRoutes);
 
 const port = process.env.PORT || 3000;
 app.listen(port, function () {
