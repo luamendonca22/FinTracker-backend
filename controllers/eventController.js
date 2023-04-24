@@ -9,6 +9,10 @@ exports.create = async (req, res) => {
     tag_id,
   } = req.body;
   try {
+    const correctLong =
+      location_long < -180 ? -180 : location_long > 180 ? 180 : location_long;
+    const correctLat =
+      location_lat < -90 ? -90 : location_lat > 90 ? 90 : location_lat;
     // check if that cetacean associated exists
     const cetaceanExists = await Cetacean.findOne({
       individualId: individualId,
@@ -18,8 +22,10 @@ exports.create = async (req, res) => {
     }
     const event = new Event({
       timestamp: timestamp,
-      location_lat,
-      location_long,
+      location: {
+        type: "Point",
+        coordinates: [parseFloat(correctLong), parseFloat(correctLat)],
+      },
       individualId,
       tag_id,
     });
@@ -65,6 +71,34 @@ exports.getByIndividualId = async (req, res) => {
     }
 
     return res.json({ events, msg: "Eventos filtrados por individualId!" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
+  }
+};
+
+exports.getNear = async (req, res) => {
+  const { latitude, longitude } = req.body.location;
+
+  try {
+    const events = await Event.aggregate([
+      {
+        $geoNear: {
+          near: {
+            type: "Point",
+            coordinates: [parseFloat(longitude), parseFloat(latitude)],
+          },
+          key: "location",
+          distanceField: "dist.calculated",
+          maxDistance: parseFloat(1000000),
+          spherical: true,
+        },
+      },
+    ]);
+
+    res.json(events);
   } catch (error) {
     console.log(error);
     return res.status(500).json({
