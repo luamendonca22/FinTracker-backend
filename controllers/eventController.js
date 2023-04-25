@@ -80,7 +80,8 @@ exports.getByIndividualId = async (req, res) => {
 };
 
 exports.getNear = async (req, res) => {
-  const { latitude, longitude } = req.body.location;
+  console.log(req.params);
+  const { long, lat } = req.params;
 
   try {
     const events = await Event.aggregate([
@@ -88,17 +89,19 @@ exports.getNear = async (req, res) => {
         $geoNear: {
           near: {
             type: "Point",
-            coordinates: [parseFloat(longitude), parseFloat(latitude)],
+            coordinates: [parseFloat(long), parseFloat(lat)],
           },
           key: "location",
           distanceField: "dist.calculated",
-          maxDistance: parseFloat(1000000),
           spherical: true,
         },
       },
     ]);
 
-    res.json(events);
+    return res.json({
+      events,
+      msg: "Eventos próximos atualizados com sucesso!",
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
