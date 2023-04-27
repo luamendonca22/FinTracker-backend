@@ -483,7 +483,9 @@ exports.deletePicture = async (req, res) => {
     // retrieve the picture property of user
     const userPicture = user.picture;
     if (userPicture == null) {
-      return res.status(404).json({ msg: "A imagem de perfil não existe." });
+      return res
+        .status(404)
+        .json({ msg: "O utilizador não tem nenhuma foto de perfil." });
     }
     // if the property exists, delete the file from multer
     fs.unlinkSync(user.picture.src);
@@ -494,7 +496,10 @@ exports.deletePicture = async (req, res) => {
 
     const pictureId = userPicture._id;
     // delete the picture object from pictures collection
-    await Picture.findByIdAndRemove(pictureId);
+    const picture = await Picture.findByIdAndRemove(pictureId);
+    if (!picture) {
+      return res.status(404).json({ msg: "A imagem de perfil não existe." });
+    }
 
     res.status(200).json({ msg: "Imagem de perfil removida com sucesso!" });
   } catch (error) {

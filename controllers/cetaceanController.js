@@ -1,5 +1,7 @@
 const Cetacean = require("../models/Cetacean");
+const User = require("../models/User");
 const { Picture } = require("../models/Picture");
+const { Comment } = require("../models/Comment");
 
 exports.create = async (req, res) => {
   const {
@@ -43,6 +45,35 @@ exports.create = async (req, res) => {
     });
   }
 };
+
+exports.updateComment = async (req, res) => {
+  const { text, userId } = req.body;
+  const id = req.params.id;
+  try {
+    const user = await User.findById(userId, "-password");
+    if (!user) {
+      return res.status(404).json({ msg: "O utilizador não foi encontrado" });
+    }
+
+    const comment = new Comment({
+      text,
+      userId,
+    });
+    await comment.save();
+
+    const updatedCetacean = await Cetacean.findOneAndUpdate(
+      { individualId: id },
+      { $push: { comments: comment } },
+      { new: true } // retorna o novo documento atualizado
+    );
+
+    res.status(200).json({ updatedCetacean, msg: "Comentário adicionado!" });
+  } catch (error) {
+    return res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
+  }
+};
 exports.getAll = async (req, res) => {
   try {
     const cetaceans = await Cetacean.find();
@@ -54,7 +85,6 @@ exports.getAll = async (req, res) => {
   }
 };
 exports.getByIndividualId = async (req, res) => {
-  console.log(req.params.id);
   const id = req.params.id;
   try {
     const cetacean = await Cetacean.findOne({ individualId: id });
@@ -74,6 +104,33 @@ exports.deleteAll = async (req, res) => {
   try {
     await Cetacean.deleteMany({});
     return res.json({ msg: "Cetáceos eliminados!" });
+  } catch (error) {
+    return res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
+  }
+};
+
+exports.deleteComment = async (req, res) => {
+  //comment id
+  const id = req.params.id;
+  const cetaceanId = req.params.cetaceanId;
+
+  try {
+    const comment = await Comment.findById(id);
+    if (!comment) {
+      return res.status(404).json({ msg: "O comentário não foi encontrado" });
+    }
+    const updatedCetacean = await Cetacean.findOneAndUpdate(
+      { individualId: cetaceanId },
+      { $pull: { comments: comment } },
+      { new: true } // retorna o novo documento atualizado
+    );
+    if (!updatedCetacean) {
+      return res.status(404).json({ msg: "O cetáceo não foi encontrado" });
+    }
+    await comment.remove();
+    res.status(200).json({ updatedCetacean, msg: "Comentário eliminado!" });
   } catch (error) {
     return res.status(500).json({
       msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
