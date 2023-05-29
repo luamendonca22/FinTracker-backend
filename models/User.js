@@ -8,6 +8,7 @@ const User = mongoose.model("User", {
   points: { default: 0, type: Number },
   picture: { type: PictureSchema },
   favorites: { type: [] },
+  visited: { type: [] },
 });
 
 module.exports = User;

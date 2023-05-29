@@ -24,6 +24,7 @@ router.put(
   userController.updatePicture
 );
 router.put("/user/:id/favorites", checkToken, userController.updateFavorites);
+router.put("/user/:id/visited", checkToken, userController.updateVisited);
 router.put(
   "/user/:id/favorites/remove",
   checkToken,

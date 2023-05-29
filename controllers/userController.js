@@ -333,11 +333,9 @@ exports.updatePoints = async (req, res) => {
     if (!user) {
       return res.status(404).json({ msg: "O utilizador não foi encontrado" });
     }
-    user.points = points;
+    user.points = user.points + points;
     await user.save();
-    return res
-      .status(201)
-      .json({ user, msg: "Pontos atualizados com sucesso!" });
+    return res.status(201).json({ user, msg: points });
   } catch (error) {
     res.status(500).json({
       msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
@@ -424,6 +422,48 @@ exports.updateFavorites = async (req, res) => {
     res
       .status(200)
       .json({ updatedUser, msg: "Cetáceo adicionado aos favoritos!" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
+  }
+};
+exports.updateVisited = async (req, res) => {
+  const id = req.params.id;
+  const { cetaceansIds } = req.body;
+  try {
+    if (cetaceansIds.length === 0) {
+      return res.status(400).json({
+        msg: "Não foram encontrados os parâmetros no corpo da solicitação",
+      });
+    }
+
+    const user = await User.findById(id, "-password");
+    if (!user) {
+      return res.status(404).json({ msg: "O utilizador não foi encontrado" });
+    }
+    const vistedIds = user.visited;
+
+    const newVisitedIds = cetaceansIds.filter((id) => !vistedIds.includes(id));
+    if (newVisitedIds.length === 0) {
+      return res
+        .status(400)
+        .json({ msg: "Estes cetáceos já foram visitados!" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      { _id: id },
+      { $push: { visited: { $each: newVisitedIds } } },
+      { new: true }
+    );
+
+    const pointsReceived = newVisitedIds.length * 5;
+    res.status(200).json({
+      updatedUser,
+      pointsReceived,
+      msg: "Cetáceos adicionados aos visitados!",
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
