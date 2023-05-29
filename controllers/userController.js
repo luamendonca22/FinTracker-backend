@@ -115,8 +115,19 @@ exports.forgotPassword = async (req, res) => {
     const mailOptions = {
       from: process.env.EMAIL_ADDRESS,
       to: email,
-      subject: "Alteração da palavra-passe.",
-      text: `Clique no link abaixo para alterar a sua palavra-passe:\n${link}`,
+      subject: `Recuperação de senha para`,
+      html: `
+      <div style="background-color: #5990FF; padding: 20px;   text-align: center;">
+      <p style="color: #fff; font-size: 18px; margin-bottom: 20px; font-weight: bold; font-size: 20px;">Recuperação de senha</p>
+      <p style="color: #fff; font-size: 16px;">Olá ${user.username},</p>
+      <p style="color: #fff; font-size: 16px;">Para alterares a tua senha, clica no link abaixo e segue as instruções na página de recuperação de senha.</p>
+      <a href="${link}" style="display: inline-block; padding: 10px 20px; background-color: #fff; color: #007bff; text-decoration: none; border-radius: 5px; font-size: 16px; font-weight: bold; margin-top: 20px;">Alterar senha</a>
+      <p style="color: #fff; font-size: 16px; margin-top: 20px;">Se não pediste recuperação de senha, ignora este email.</p>
+      <p style="color: #fff; font-size: 16px;">Se tiveres alguma dúvida, não hesites em nos contactar.</p>
+      <p style="color: #fff; font-size: 16px;">Obrigado,</p>
+      <p style="color: #fff; font-size: 16px;">Equipa de Suporte</p>
+    </div>
+      `,
     };
 
     transporter.sendMail(mailOptions, function (error, info) {
