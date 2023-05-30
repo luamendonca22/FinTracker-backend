@@ -80,7 +80,6 @@ exports.getByIndividualId = async (req, res) => {
 };
 
 exports.getNear = async (req, res) => {
-  console.log(req.params);
   const { long, lat } = req.params;
 
   try {
