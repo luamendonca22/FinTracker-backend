@@ -6,7 +6,6 @@ const User = mongoose.model("User", {
   password: { type: String, required: true },
   details: { type: [Object] },
   points: { default: 0, type: Number },
-  picture: { type: PictureSchema },
   favorites: { type: [] },
   visited: { type: [] },
 });
