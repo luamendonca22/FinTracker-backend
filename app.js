@@ -29,7 +29,6 @@ conn();
 
 app.use("/", authRoutes);
 app.use("/", userRoutes);
-app.use("/", pictureRoutes);
 app.use("/", cetaceansRoutes);
 app.use("/", eventsRoutes);
 app.use("/", apiRoutes);

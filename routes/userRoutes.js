@@ -24,5 +24,4 @@ router.put(
   userController.deleteFavorite
 );
 
-router.get("/", userController.getApi);
 module.exports = router;
