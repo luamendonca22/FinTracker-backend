@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/userController");
 const checkToken = require("../middleware/auth");
-const upload = require("../config/multer");
 
 router.post("/user/forgotPassword", userController.forgotPassword);
 router.post("/user/:id/resetPassword/:token", userController.resetPassword);
@@ -25,4 +24,5 @@ router.put(
   userController.deleteFavorite
 );
 
+router.get("/", userController.getApi);
 module.exports = router;

@@ -15,7 +15,6 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: false }));
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
-const pictureRoutes = require("./routes/pictureRoutes");
 const cetaceansRoutes = require("./routes/cetaceansRoutes");
 const eventsRoutes = require("./routes/eventsRoutes");
 const apiRoutes = require("./routes/apiRoutes");
