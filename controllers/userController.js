@@ -120,7 +120,7 @@ exports.forgotPassword = async (req, res) => {
       <div style="background-color: #5990FF; padding: 20px; width:60%; text-align: center; margin: 0 auto;">
       <p style="color: #fff; font-size: 18px; margin-bottom: 20px; font-weight: bold; font-size: 20px;">Recuperação de palavra-passe</p>
       <p style="color: #fff; font-size: 16px;">Olá ${user.username},</p>
-      <p style="color: #fff; font-size: 16px;">Para alterares a tua senha, clica no botão abaixo e segue as instruções.</p>
+      <p style="color: #fff; font-size: 16px;">Para alterares a tua palavra-passe, clica no botão abaixo e segue as instruções.</p>
       <a href="${link}" style="display: inline-block; padding: 10px 20px; background-color: #fff; color: #000; text-decoration: none; border-radius: 5px; font-size: 16px; font-weight: bold; margin-top: 20px; box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);">Alterar senha</a>
       <p style="color: #fff; font-size: 16px; margin-top: 20px;">Se não pediste recuperação de palavra-passe, ignora este email.</p>
       <p style="color: #fff; font-size: 16px;">Se tiveres alguma dúvida, não hesites em nos contactar.</p>

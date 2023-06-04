@@ -7,8 +7,9 @@ exports.create = async (req, res) => {
   const {
     timestamp_start,
     timestamp_end,
-    local_identifier,
+    /* local_identifier, */
     id: individualId,
+    /* individualId, */
     socialBehavior,
     physic,
     details,
@@ -25,7 +26,7 @@ exports.create = async (req, res) => {
     const cetacean = new Cetacean({
       timestamp_start,
       timestamp_end,
-      local_identifier,
+      /* local_identifier, */
       socialBehavior,
       physic,
       individualId,

@@ -11,7 +11,7 @@ const Cetacean = mongoose.model("Cetacean", {
   timestamp_start: { type: Date, required: true },
   timestamp_end: { type: Date, required: true },
   individualId: { type: String, required: true },
-  local_identifier: { type: String, required: true },
+  //local_identifier: { type: String, required: true },
   details: { type: [Object], required: true },
   picture: { type: PictureSchema },
   comments: { type: [CommentSchema] },

@@ -9,7 +9,8 @@ async function main() {
     mongoose.set("strictQuery", false);
 
     await mongoose.connect(
-      `mongodb+srv://${dbUser}:${dbPassword}@cluster0.4unhbpa.mongodb.net/?retryWrites=true&w=majority`,
+      `mongodb+srv://${dbUser}:${dbPassword}@cluster0.2a1ybx7.mongodb.net/?retryWrites=true&w=majority`,
+
       { useNewUrlParser: true }
     );
     console.log("Conection sucessfully");
