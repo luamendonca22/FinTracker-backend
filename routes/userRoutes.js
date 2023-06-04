@@ -32,4 +32,5 @@ router.put(
 );
 
 router.delete("/user/:id/picture", checkToken, userController.deletePicture);
+
 module.exports = router;
