@@ -7,6 +7,7 @@ const User = mongoose.model("User", {
   details: { type: [Object] },
   points: { default: 0, type: Number },
   favorites: { type: [] },
+  picture: { type: String },
   visited: { type: [] },
 });
 

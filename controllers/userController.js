@@ -218,7 +218,31 @@ exports.getAllUsers = async (req, res) => {
     });
   }
 };
+exports.getPicture = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const user = await User.findById(id, "-password");
+    if (!user) {
+      return res.status(404).json({ msg: "O utilizador não foi encontrado" });
+    }
+    const userPictureSrc = user.picture;
+    if (userPictureSrc == "") {
+      return res.status(404).json({ msg: "A imagem de perfil não existe." });
+    }
+    // pick the file source
+    console.log(userPictureSrc);
 
+    // send the source
+    res.status(200).json({
+      userPictureSrc,
+      msg: "Imagem de perfil atualizada com sucesso!",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
+  }
+};
 exports.showResetPassword = async (req, res) => {
   const { id, token } = req.params;
 
@@ -347,7 +371,27 @@ exports.updateUsername = async (req, res) => {
     });
   }
 };
+exports.updatePicture = async (req, res) => {
+  const id = req.params.id;
+  const src = req.body.src;
+  try {
+    const user = await User.findById(id, "-password");
+    if (!user) {
+      return res.status(404).json({ msg: "O utilizador não foi encontrado" });
+    }
 
+    user.picture = src;
+    await user.save();
+
+    res
+      .status(200)
+      .json({ user, msg: "Imagem de perfil adicionada com sucesso!" });
+  } catch (error) {
+    return res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
+  }
+};
 exports.updateFavorites = async (req, res) => {
   const id = req.params.id;
   const { cetaceanId } = req.body;
@@ -461,7 +505,31 @@ exports.deleteAccount = async (req, res) => {
     });
   }
 };
+exports.deletePicture = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const user = await User.findById(id, "-password");
+    if (!user) {
+      return res.status(404).json({ msg: "O utilizador não foi encontrado" });
+    }
+    // retrieve the picture property of user
 
+    if (user.picture == "") {
+      return res
+        .status(404)
+        .json({ msg: "O utilizador não tem nenhuma foto de perfil." });
+    }
+
+    // delete the picture property of user
+    user.picture = "";
+    await user.save();
+    res.status(200).json({ msg: "Imagem de perfil removida com sucesso!" });
+  } catch (error) {
+    return res.status(500).json({
+      msg: "Ocorreu um erro no servidor, tente novamente mais tarde.",
+    });
+  }
+};
 exports.deleteFavorite = async (req, res) => {
   const id = req.params.id;
   const { cetaceanToRemove } = req.body;
