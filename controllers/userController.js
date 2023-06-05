@@ -225,16 +225,16 @@ exports.getPicture = async (req, res) => {
     if (!user) {
       return res.status(404).json({ msg: "O utilizador não foi encontrado" });
     }
-    const userPictureSrc = user.picture;
-    if (userPictureSrc == "") {
+    const userPictureUrl = user.picture;
+    if (userPictureUrl == "") {
       return res.status(404).json({ msg: "A imagem de perfil não existe." });
     }
     // pick the file source
-    console.log(userPictureSrc);
+    console.log(userPictureUrl);
 
     // send the source
     res.status(200).json({
-      userPictureSrc,
+      userPictureUrl,
       msg: "Imagem de perfil atualizada com sucesso!",
     });
   } catch (error) {
@@ -373,14 +373,14 @@ exports.updateUsername = async (req, res) => {
 };
 exports.updatePicture = async (req, res) => {
   const id = req.params.id;
-  const src = req.body.src;
+  const url = req.body.url;
   try {
     const user = await User.findById(id, "-password");
     if (!user) {
       return res.status(404).json({ msg: "O utilizador não foi encontrado" });
     }
 
-    user.picture = src;
+    user.picture = url;
     await user.save();
 
     res
