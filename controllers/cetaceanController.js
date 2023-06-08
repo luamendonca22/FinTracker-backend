@@ -8,8 +8,8 @@ exports.create = async (req, res) => {
     timestamp_start,
     timestamp_end,
     /* local_identifier, */
-    id: individualId,
-    /* individualId, */
+    /* id: individualId, */
+    individualId,
     socialBehavior,
     physic,
     details,

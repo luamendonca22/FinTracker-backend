@@ -13,7 +13,6 @@ const EventSchema = new mongoose.Schema({
     },
   },
   individualId: { type: String, required: true },
-  tag_id: { type: String, required: true },
 });
 
 // Add index to location field

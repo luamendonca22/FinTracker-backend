@@ -230,7 +230,6 @@ exports.getPicture = async (req, res) => {
       return res.status(404).json({ msg: "A imagem de perfil não existe." });
     }
     // pick the file source
-    console.log(userPictureUrl);
 
     // send the source
     res.status(200).json({

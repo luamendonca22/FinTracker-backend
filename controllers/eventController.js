@@ -5,8 +5,8 @@ exports.create = async (req, res) => {
     timestamp,
     location_lat,
     location_long,
-    individual_id: individualId,
-    tag_id,
+    /* individual_id: individualId, */
+    individualId,
   } = req.body;
   try {
     const correctLong =
@@ -27,7 +27,6 @@ exports.create = async (req, res) => {
         coordinates: [parseFloat(correctLong), parseFloat(correctLat)],
       },
       individualId,
-      tag_id,
     });
     await event.save();
     res.status(201).json({ event, msg: "Evento criado com sucesso!" });
