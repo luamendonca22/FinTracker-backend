@@ -100,7 +100,7 @@ exports.forgotPassword = async (req, res) => {
     const token = jwt.sign({ email: user.email, id: user._id }, secret, {
       expiresIn: "1m",
     });
-    const link = `http://localhost:3000/user/${user._id}/resetPassword/${token}`;
+    const link = `https://fintracker-backend.onrender.com/user/${user._id}/resetPassword/${token}`;
 
     // Send an email to the user with a link to the password reset page
     const transporter = nodemailer.createTransport({
