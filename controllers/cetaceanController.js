@@ -124,7 +124,7 @@ exports.deleteComment = async (req, res) => {
     }
     const updatedCetacean = await Cetacean.findOneAndUpdate(
       { individualId: cetaceanId },
-      { $pull: { comments: comment } },
+      { $pull: { comments: { _id: id } } },
       { new: true } // retorna o novo documento atualizado
     );
     if (!updatedCetacean) {
