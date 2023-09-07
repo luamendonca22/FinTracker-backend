@@ -20,8 +20,8 @@ exports.create = async (req, res) => {
   } = req.body;
   try {
     const picture = new Picture({
-      name: details[1].value,
-      src: `cetaceans/${details[1].value.trim()}.jpg`,
+      name: details[2].value,
+      src: `cetaceans/${details[2].value.trim()}.jpg`,
     });
     const cetacean = new Cetacean({
       timestamp_start,
