@@ -12,6 +12,10 @@ A mobile application developed as a key component of my Master's thesis. This ap
 <img src="https://github.com/tandpfun/skill-icons/blob/main/icons/MongoDB.svg" title="MongoDB" alt="MongoDB" width="40" height="40"/>&nbsp;
 <img src="https://github.com/tandpfun/skill-icons/blob/main/icons/Firebase-Dark.svg" title="Firebase" alt="Firebase" width="40" height="40"/>&nbsp;
 
+## Backend
+
+The backend repository can be found <a href="https://github.com/luamendonca22/FinTracker-backend">here</a>
+
 ## Usage
 
 ### Authentication
