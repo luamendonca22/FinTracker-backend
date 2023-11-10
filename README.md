@@ -14,7 +14,7 @@ A mobile application developed as a key component of my Master's thesis. This ap
 
 ## Frontend
 
-The frontend repository can be found <a href="https://github.com/luamendonca22/FinTracker">here</a>
+The frontend repository can be found <a href="https://github.com/luamendonca22/FinTracker">here</a>.
 
 ## Usage
 
